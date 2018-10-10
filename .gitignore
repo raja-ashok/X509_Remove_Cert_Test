@@ -1,0 +1,11 @@
+libcrypto.a
+libssl.a
+*.o
+tls12_server
+tls12_client
+tls12_server2
+tls12_client2
+tls12_server3
+tls12_client3
+tls12_server4
+tls12_client4

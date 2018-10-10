@@ -2,7 +2,9 @@ TLS12_CLIENT = tls12_rm_cert1_client
 TLS12_SERVER = tls12_rm_cert1_server
 TLS12_CLIENT2 = tls12_rm_cert2_client
 TLS12_SERVER2 = tls12_rm_cert2_server
-TARGET=$(TLS12_CLIENT) $(TLS12_SERVER) $(TLS12_CLIENT2) $(TLS12_SERVER2)
+TLS12_CLIENT3 = tls12_rm_cert3_client
+TLS12_SERVER3 = tls12_rm_cert3_server
+TARGET=$(TLS12_CLIENT) $(TLS12_SERVER) $(TLS12_CLIENT2) $(TLS12_SERVER2) $(TLS12_CLIENT3) $(TLS12_SERVER3)
 
 ifeq ($(OSSL_PATH),)
 OPENSSL_PATH=../openssl
@@ -38,6 +40,12 @@ $(TLS12_CLIENT2):$(TLS12_CLIENT2).o
 	$(CC) $^ $(LDFLAGS) -o $@
 
 $(TLS12_SERVER2):$(TLS12_SERVER2).o
+	$(CC) $^ $(LDFLAGS) -o $@
+
+$(TLS12_CLIENT3):$(TLS12_CLIENT3).o
+	$(CC) $^ $(LDFLAGS) -o $@
+
+$(TLS12_SERVER3):$(TLS12_SERVER3).o
 	$(CC) $^ $(LDFLAGS) -o $@
 
 clean:

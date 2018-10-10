@@ -11,9 +11,8 @@
 #include "openssl/crypto.h"
 #include "openssl/ssl.h"
 
-#define CAFILE1 "./certs/ECC_Prime256_Certs2/rootcert.pem"
-#define CAFILE2 "./certs/ECC_Prime256_Certs2/inter_ca_cert.pem"
-#define CAFILE3 "./certs/ECC_Prime256_Certs/rootcert.pem"
+#define CADIR1 "./certs/ECC_Prime256_Certs2/cacert"
+#define CADIR2 "./certs/ECC_Prime256_Certs/cacert"
 #define SERVER_IP "127.0.0.1"
 #define SERVER_PORT 7788
 
@@ -76,27 +75,19 @@ SSL_CTX *create_context()
 
     printf("SSL context created\n");
 
-    if (SSL_CTX_load_verify_locations(ctx, CAFILE1, NULL) != 1) {
-        printf("Load CA cert failed\n");
+    if (SSL_CTX_load_verify_locations(ctx, NULL, CADIR1) != 1) {
+        printf("Load CA cert from dir %s failed\n", CADIR1);
         goto err_handler;
     }
 
-    printf("Loaded cert %s on context\n", CAFILE1);
+    printf("Loaded cert from dir %s on context\n", CADIR1);
 
-    if (SSL_CTX_load_verify_locations(ctx, CAFILE2, NULL) != 1) {
-        printf("Load CA cert failed\n");
+    if (SSL_CTX_load_verify_locations(ctx, NULL, CADIR2) != 1) {
+        printf("Load CA cert from dir %s failed\n", CADIR2);
         goto err_handler;
     }
 
-    printf("Loaded cert %s on context\n", CAFILE2);
-
-    if (SSL_CTX_load_verify_locations(ctx, CAFILE3, NULL) != 1) {
-        printf("Load CA cert failed\n");
-        goto err_handler;
-    }
-
-    printf("Loaded cert %s on context\n", CAFILE3);
-
+    printf("Loaded cert from dir %s on context\n", CADIR2);
     printf("Num of cert in store is %d\n",
             sk_X509_OBJECT_num(X509_STORE_get0_objects(SSL_CTX_get_cert_store(ctx))));
 
@@ -113,6 +104,7 @@ err_handler:
     return NULL;
 }
 
+#if 0
 void remove_cert(SSL_CTX *ctx)
 {
     const char *ca_file = CAFILE3;
@@ -122,11 +114,10 @@ void remove_cert(SSL_CTX *ctx)
     }
 
     printf("Removed cert %s on context\n", ca_file);
-    printf("Num of cert in store is %d\n",
-            sk_X509_OBJECT_num(X509_STORE_get0_objects(SSL_CTX_get_cert_store(ctx))));
 err_handler:
     return;
 }
+#endif
 
 SSL *create_ssl_object(SSL_CTX *ctx)
 {
@@ -171,7 +162,7 @@ int tls12_client()
 
     fd = SSL_get_fd(ssl);
 
-    remove_cert(ctx);
+    //remove_cert(ctx);
 
     ret = SSL_connect(ssl); 
     if (ret != 1) {

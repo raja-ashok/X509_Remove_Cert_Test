@@ -1,6 +1,6 @@
 #!/bin/bash
 
-declare -g -a exe_arr=('tls12_rm_cert1' 'tls12_rm_cert2')
+declare -g -a exe_arr=('tls12_rm_cert1' 'tls12_rm_cert2' 'tls12_rm_cert3')
 
 # Compile it first
 #make

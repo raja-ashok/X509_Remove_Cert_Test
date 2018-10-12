@@ -15,12 +15,15 @@
 #define CADIR2 "./certs/ECC_Prime256_Certs/cacert"
 #define SERVER_IP "127.0.0.1"
 #define SERVER_PORT 7788
+#define MAX_CONNECT_TRY 20
+#define CONNECT_SLEEP_TIME 100 /* ms */
 
 int do_tcp_connection(const char *server_ip, uint16_t port)
 {
     struct sockaddr_in serv_addr;
     int fd;
     int ret;
+    int i = 0;
 
     fd = socket(AF_INET, SOCK_STREAM, 0);
     if (fd < 0) {
@@ -36,11 +39,20 @@ int do_tcp_connection(const char *server_ip, uint16_t port)
     }
     serv_addr.sin_port = htons(port);
 
-    ret = connect(fd, (struct sockaddr *)&serv_addr, sizeof(serv_addr));
+    do {
+        ret = connect(fd, (struct sockaddr *)&serv_addr, sizeof(serv_addr));
+        printf("sleeping...\n");
+        usleep(CONNECT_SLEEP_TIME * 1000);
+    } while ((i++ < MAX_CONNECT_TRY) && (ret != 0));
     if (ret) {
         printf("Connect failed, errno=%d\n", errno);
         goto err_handler;
     }
+    /*ret = connect(fd, (struct sockaddr *)&serv_addr, sizeof(serv_addr));
+    if (ret) {
+        printf("Connect failed, errno=%d\n", errno);
+        goto err_handler;
+    }*/
     
     printf("TLS connection succeeded, fd=%d\n", fd);
     return fd;
@@ -59,6 +71,8 @@ int verify_cb(int ok, X509_STORE_CTX *ctx)
         if (chain) {
             printf("Cert Chain size=%d\n", sk_X509_num(chain));
         }
+    } else {
+        printf("Cert verify failed, error code %d\n", X509_STORE_CTX_get_error(ctx));
     }
     return ok;
 }
@@ -166,11 +180,15 @@ int tls12_client()
 
     ret = SSL_connect(ssl); 
     if (ret != 1) {
+        printf("Num of cert in store is %d\n",
+            sk_X509_OBJECT_num(X509_STORE_get0_objects(SSL_CTX_get_cert_store(ctx))));
         printf("SSL connect failed%d\n", ret);
         goto err_handler;
     }
 
     printf("SSL connect succeeded\n");
+    printf("Num of cert in store is %d\n",
+            sk_X509_OBJECT_num(X509_STORE_get0_objects(SSL_CTX_get_cert_store(ctx))));
     SSL_free(ssl);
     SSL_CTX_free(ctx);
     close(fd);

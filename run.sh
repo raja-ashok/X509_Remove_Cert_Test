@@ -3,24 +3,27 @@
 declare -g -a exe_arr=('tls12_rm_cert1' 'tls12_rm_cert2' 'tls12_rm_cert3')
 
 # Compile it first
-#make
+make
 
+i=0
 tot_count=0
 failed_count=0
 passed_count=0
 
 for item in ${exe_arr[@]}; do
-    echo "Testing ${item}_server and ${item}_client"
-    ./${item}_server 1>/dev/null &
+    ((i++))
+    echo "$i) Testing ${item}_server and ${item}_client"
+    ./${item}_server >/dev/null &
     pid=$!
-    ./${item}_client 1>/dev/null
+    ./${item}_client >/dev/null
     if [ $? != 0 ]; then
-        ${item}_client failed
+        echo "${item}_client failed"
         ((failed_count++))
+        kill -9 $pid
     fi
     wait $pid
     if [ $? != 0 ]; then
-        ${item}_server failed
+        echo "${item}_server failed"
         ((failed_count++))
     fi
     tot_count=$((tot_count+2))

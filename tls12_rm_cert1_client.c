@@ -16,12 +16,15 @@
 #define CAFILE3 "./certs/ECC_Prime256_Certs/rootcert.pem"
 #define SERVER_IP "127.0.0.1"
 #define SERVER_PORT 7788
+#define MAX_CONNECT_TRY 20
+#define CONNECT_SLEEP_TIME 100 /* ms */
 
 int do_tcp_connection(const char *server_ip, uint16_t port)
 {
     struct sockaddr_in serv_addr;
     int fd;
     int ret;
+    int i = 0;
 
     fd = socket(AF_INET, SOCK_STREAM, 0);
     if (fd < 0) {
@@ -37,7 +40,10 @@ int do_tcp_connection(const char *server_ip, uint16_t port)
     }
     serv_addr.sin_port = htons(port);
 
-    ret = connect(fd, (struct sockaddr *)&serv_addr, sizeof(serv_addr));
+    do {
+        ret = connect(fd, (struct sockaddr *)&serv_addr, sizeof(serv_addr));
+        usleep(CONNECT_SLEEP_TIME * 1000);
+    } while ((i++ < MAX_CONNECT_TRY) && (ret != 0));
     if (ret) {
         printf("Connect failed, errno=%d\n", errno);
         goto err_handler;

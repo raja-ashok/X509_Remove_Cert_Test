@@ -124,7 +124,7 @@ err_handler:
 void remove_cert(SSL_CTX *ctx)
 {
     const char *ca_file = CAFILE1;
-    if (SSL_CTX_remove_verify_locations(ctx, ca_file, NULL) != 1) {
+    if (SSL_CTX_remove_verify_file(ctx, ca_file) != 1) {
         printf("Remove CA cert %s failed\n", ca_file);
         goto err_handler;
     }

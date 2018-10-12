@@ -118,21 +118,6 @@ err_handler:
     return NULL;
 }
 
-#if 0
-void remove_cert(SSL_CTX *ctx)
-{
-    const char *ca_file = CAFILE3;
-    if (SSL_CTX_remove_verify_locations(ctx, ca_file, NULL) != 1) {
-        printf("Remove CA cert %s failed\n", ca_file);
-        goto err_handler;
-    }
-
-    printf("Removed cert %s on context\n", ca_file);
-err_handler:
-    return;
-}
-#endif
-
 SSL *create_ssl_object(SSL_CTX *ctx)
 {
     SSL *ssl;
@@ -176,7 +161,6 @@ int tls12_client()
 
     fd = SSL_get_fd(ssl);
 
-    //remove_cert(ctx);
 
     ret = SSL_connect(ssl); 
     if (ret != 1) {
